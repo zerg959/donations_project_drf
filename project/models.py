@@ -113,11 +113,31 @@ class Collect(models.Model):
         blank=True
         )
     class Meta:
-        ordering = ['-created_at', 'ended_at', 'target_amount']
+        ordering = ['-created_at', '-ended_at', '-target_amount']
     
     def __str__(self):
         return f"Collect: {self.title} by {self.author} for {self.target_amount}"
     
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.pk and self.author.email:
+            transaction.on_commit(self.send_creation_email)
+    
+    def send_creation_email(self):
+        """
+        Send success email to author
+        """
+        subject = f"Collect '{self.title}' created sucessfully"
+        message = f"You create collect '{self.title}'. Target: {self.target_amount}."
+        # add doctring and URl to collect
+        send_mail(
+            subject, 
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [self.author.email],
+            fail_silently=True
+            )
+
     def add_payment(self, user, amount):
         """
         Add new payment.
