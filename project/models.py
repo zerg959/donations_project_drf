@@ -123,28 +123,31 @@ class Collect(models.Model):
         Add new payment.
         Amount added to current amount.
         New participant added to participants.
-        If current amount reached target amount, collect had finished 
+        If current amount reached target amount, collect had finished.
         """
-        with transaction.atomic():
+        with transaction.atomic(): # create atomic transaction
             collect = Collect.objects.select_for_update().get(pk=self.pk)
             payment = Payment.objects.create(
                 user=user,
                 amount=amount
             )
+            # add new payment amount into current_amount
             Collect.objects.filter(pk=self.pk).update(
                 current_amount = F('current_amount') + amount
             )
-
+            # create queryset of all user payments and exclude current payment
+            # check if user already had paid into this collect.
             previous_payments = Payment.objects.filter(
                 user=user,
                 collect=self
             ).exclude(pk=payment.pk)
-
+            # if user didnot have pay before add 1 to participants
             if not previous_payments.exists():
                 Collect.objects.filter(pk=self.pk).update(
                 participants = F('participants') + 1
             )
             collect.refresh_from_db()
+            # check if target reached after payment
             if (collect.target_amount
                 and collect.current_amount >= collect.target_amount
                 and not collect.ended_at):
