@@ -148,5 +148,6 @@ SWAGGER_SETTINGS = {
 
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
+DEFAULT_FROM_EMAIL = 'testmailbox@hub10.ru'
+# SITE_URL = url for links in email 
 # add params for sending real emails
