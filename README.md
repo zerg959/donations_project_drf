@@ -1,0 +1,1 @@
+# donations_project_drf
