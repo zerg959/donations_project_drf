@@ -119,5 +119,35 @@ class Collect(models.Model):
         return f"Collect: {self.title} by {self.author} for {self.target_amount}"
     
     def add_payment(self, user, amount):
+        """
+        Add new payment.
+        Amount added to current amount.
+        New participant added to participants.
+        If current amount reached target amount, collect had finished 
+        """
         with transaction.atomic():
             collect = Collect.objects.select_for_update().get(pk=self.pk)
+            payment = Payment.objects.create(
+                user=user,
+                amount=amount
+            )
+            Collect.objects.filter(pk=self.pk).update(
+                current_amount = F('current_amount') + amount
+            )
+
+            previous_payments = Payment.objects.filter(
+                user=user,
+                collect=self
+            ).exclude(pk=payment.pk)
+
+            if not previous_payments.exists():
+                Collect.objects.filter(pk=self.pk).update(
+                participants = F('participants') + 1
+            )
+            collect.refresh_from_db()
+            if (collect.target_amount
+                and collect.current_amount >= collect.target_amount
+                and not collect.ended_at):
+                Collect.objects.filter(pk=self.pk).update(ended_at=timezone.now())
+                collect.ended_at = timezone.now()
+            return payment
