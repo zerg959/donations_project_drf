@@ -5,6 +5,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class Payment(models.Model):
     """
@@ -44,6 +46,25 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment of the user: {self.user.username} - {self.amount}"
+
+    class Meta:
+        ordering = ['-timestamp']
+
+@receiver(post_save, sender=Payment)
+def send_payment_confirmation_email(sender, instance, created, **kwargs):
+    """
+    Send payment confirmation email to the user after a Payment instance is created.
+    """
+    if created and instance.user and instance.user.email: # Check if user exists and has an email
+        subject = f"Payment Confirmation for {instance.collect.title}"
+        message = f"Thank you for your donation of {instance.amount} to {instance.collect.title}!"
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [instance.user.email],
+            fail_silently=True  # Consider setting to False in production to catch errors
+        )
 
 
 class Collect(models.Model):
@@ -120,25 +141,25 @@ class Collect(models.Model):
     def __str__(self):
         return f"Collect: {self.title} by {self.author} for {self.target_amount}"
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if not self.pk and self.author.email:
-            transaction.on_commit(self.send_creation_email)
+    # def save(self, *args, **kwargs):
+    #     super().save(*args, **kwargs)
+    #     if not self.pk and self.author.email:
+    #         transaction.on_commit(self.send_creation_email)
 
-    def send_creation_email(self):
-        """
-        Send success email to author
-        """
-        subject = f"Collect '{self.title}' created sucessfully"
-        message = f"You create collect '{self.title}'. Target: {self.target_amount}."
-        # add doctring and URl to collect
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [self.author.email],
-            fail_silently=True
-            )
+    # def send_creation_email(self):
+    #     """
+    #     Send success email to author
+    #     """
+    #     subject = f"Collect '{self.title}' created sucessfully"
+    #     message = f"You create collect '{self.title}'. Target: {self.target_amount}."
+    #     # add doctring and URl to collect
+    #     send_mail(
+    #         subject,
+    #         message,
+    #         settings.DEFAULT_FROM_EMAIL,
+    #         [self.author.email],
+    #         fail_silently=True
+    #         )
 
     def add_payment(self, user, amount):
         """
@@ -175,3 +196,20 @@ class Collect(models.Model):
                 Collect.objects.filter(pk=self.pk).update(ended_at=timezone.now())
                 collect.ended_at = timezone.now()
             return payment
+
+@receiver(post_save, sender=Collect)
+def send_creation_email_on_collect_creation(sender, instance, created, **kwargs):
+    """
+    Send success email to author after Collect instance is created.
+    """
+    if created and instance.author.email:
+        subject = f"Collect '{instance.title}' created successfully"
+        message = f"You created collect '{instance.title}'. Target: {instance.target_amount}."
+        # add doctring and URl to collect
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [instance.author.email],
+            fail_silently=True
+        )
