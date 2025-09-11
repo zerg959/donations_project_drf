@@ -5,6 +5,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
 
+
 class Payment(models.Model):
     """
     Payment model: allows create single payments objs.
@@ -112,17 +113,18 @@ class Collect(models.Model):
         null=True,
         blank=True
         )
+
     class Meta:
         ordering = ['-created_at', '-ended_at', '-target_amount']
-    
+
     def __str__(self):
         return f"Collect: {self.title} by {self.author} for {self.target_amount}"
-    
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if not self.pk and self.author.email:
             transaction.on_commit(self.send_creation_email)
-    
+
     def send_creation_email(self):
         """
         Send success email to author
@@ -131,7 +133,7 @@ class Collect(models.Model):
         message = f"You create collect '{self.title}'. Target: {self.target_amount}."
         # add doctring and URl to collect
         send_mail(
-            subject, 
+            subject,
             message,
             settings.DEFAULT_FROM_EMAIL,
             [self.author.email],
@@ -145,15 +147,16 @@ class Collect(models.Model):
         New participant added to participants.
         If current amount reached target amount, collect had finished.
         """
-        with transaction.atomic(): # create atomic transaction
+        with transaction.atomic():  # create atomic transaction
             collect = Collect.objects.select_for_update().get(pk=self.pk)
             payment = Payment.objects.create(
                 user=user,
+                collect=self,
                 amount=amount
             )
             # add new payment amount into current_amount
             Collect.objects.filter(pk=self.pk).update(
-                current_amount = F('current_amount') + amount
+                current_amount=F('current_amount') + amount
             )
             # create queryset of all user payments and exclude current payment
             # check if user already had paid into this collect.
@@ -164,13 +167,11 @@ class Collect(models.Model):
             # if user didnot have pay before add 1 to participants
             if not previous_payments.exists():
                 Collect.objects.filter(pk=self.pk).update(
-                participants = F('participants') + 1
-            )
+                    participants=F('participants') + 1
+                    )
             collect.refresh_from_db()
             # check if target reached after payment
-            if (collect.target_amount
-                and collect.current_amount >= collect.target_amount
-                and not collect.ended_at):
+            if (collect.target_amount and collect.current_amount >= collect.target_amount and not collect.ended_at):
                 Collect.objects.filter(pk=self.pk).update(ended_at=timezone.now())
                 collect.ended_at = timezone.now()
             return payment

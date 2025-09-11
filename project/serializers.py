@@ -2,7 +2,11 @@ from rest_framework import serializers
 from project.models import Collect, Payment
 from django.contrib.auth.models import User
 
+
 class UserSerializer(serializers.ModelSerializer):
+    """
+    User serializer.
+    """
     class Meta:
         model = User
         fields = ['id', 'username', 'email']
@@ -21,13 +25,20 @@ class PaymentSerializer(serializers.ModelSerializer):
             'timestamp'
         ]
 
+
 class CollectSerializer(serializers.ModelSerializer):
+    """
+    Collect serializer.
+    """
     author = UserSerializer(read_only=True)
     payments = PaymentSerializer(many=True, read_only=True)
     participants = serializers.IntegerField(read_only=True)
     limit_status = serializers.SerializerMethodField()
-    
+
     def get_limit_status(self, obj):
+        """
+        Collect status by target amount: unlimited or limited.
+        """
         if obj.target_amount is None:
             return 'Unlimited'
         return f'Target: {obj.target_amount}'
@@ -41,7 +52,11 @@ class CollectSerializer(serializers.ModelSerializer):
             'limit_status', 'payments'
         ]
 
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
+    """
+    User registration serializer.
+    """
     password = serializers.CharField(write_only=True)
     password_confirm = serializers.CharField(write_only=True)
 
@@ -57,11 +72,17 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, data):
-        if data['password']!=data['password_confirm']:
+        """
+        Password matching validation.
+        """
+        if data['password'] != data['password_confirm']:
             raise serializers.ValidationError("Passwords do not match")
         return data
-    
+
     def create(self, validated_data):
+        """
+        Create new user.
+        """
         validated_data.pop('password_confirm')
         user = User.objects.create_user(**validated_data)
         return user
