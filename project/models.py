@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+
 class Payment(models.Model):
     """
     Payment model: allows create single payments objs.
