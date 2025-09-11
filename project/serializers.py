@@ -23,7 +23,7 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 class CollectSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    payments = PaymentSerializer(many=True, read_only=True, source='paymnet_set')
+    payments = PaymentSerializer(many=True, read_only=True)
     participants = serializers.IntegerField(read_only=True)
     limit_status = serializers.SerializerMethodField()
     
@@ -50,8 +50,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         fields = [
             'username',
             'email',
-            'name',
-            'surname',
+            'first_name',
+            'last_name',
             'password',
             'password_confirm'
         ]

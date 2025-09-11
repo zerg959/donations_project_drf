@@ -2,8 +2,9 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import permissions
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly, AllowAny
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+from drf_yasg.utils import swagger_auto_schema
 
 from django.contrib.auth.models import User
 from project.models import Collect, Payment
@@ -16,8 +17,15 @@ from project.serializers import (
 
 class AuthViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
-    @action(detail=True, method=['post'], url_path='register')
+    @swagger_auto_schema(
+            request_body=UserRegistrationSerializer,
+            responses={201: UserSerializer}
+    )
+    @action(detail=False,methods=['post'], url_path='register')
     def register(self, request):
+        """
+        New user registration endpoint.
+        """
         serializer=UserRegistrationSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
@@ -26,14 +34,24 @@ class AuthViewSet(viewsets.ViewSet):
                 "message": "Registration successful.",
                 "user": UserSerializer(user).data,
                 "tokens": {
-                    "refresh token": str(refresh),
-                    "access token": str(refresh.access_token),
+                    "refresh_token": str(refresh),
+                    "access_token": str(refresh.access_token),
                 }
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @swagger_auto_schema(
+            responses={201: UserSerializer},
+    )
+    @action(detail=False, methods=['get'], url_path="profile", permission_classes=[IsAuthenticated])
+    def profile(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-class IsAuthorOrReadOnly(permissions.BasePermissions):
+class IsAuthorOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
+        """
+        Check permissions: only author or SU can edit and delete.
+        """
         if request.method in permissions.SAFE_METHODS:
             return True
         return obj.author == request.user
