@@ -4,3 +4,4 @@ Pillow
 drf-yasg
 python-dotenv
 djangorestframework-simplejwt
+Faker
