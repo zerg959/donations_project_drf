@@ -23,6 +23,7 @@ from rest_framework import permissions
 schema_view = get_schema_view(
     openapi.Info(
         title="GroupCollectAPI",
+        default_version='v1',
         description="Collective donations API",
     ),
     public = True,
