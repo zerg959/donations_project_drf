@@ -53,7 +53,7 @@ class Payment(models.Model):
 @receiver(post_save, sender=Payment)
 def send_payment_confirmation_email(sender, instance, created, **kwargs):
     """
-    Send payment confirmation email to the user after a Payment instance is created.
+    Send payment confirmation email to the user after a new payment is created.
     """
     if created and instance.user and instance.user.email: # Check if user exists and has an email
         subject = f"Payment Confirmation for {instance.collect.title}"
@@ -63,7 +63,7 @@ def send_payment_confirmation_email(sender, instance, created, **kwargs):
             message,
             settings.DEFAULT_FROM_EMAIL,
             [instance.user.email],
-            fail_silently=True  # Consider setting to False in production to catch errors
+            fail_silently=True  # False in production to catch errors
         )
 
 
