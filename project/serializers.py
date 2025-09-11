@@ -25,7 +25,7 @@ class CollectSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     payments = PaymentSerializer(many=True, read_only=True, source='paymnet_set')
     participants = serializers.IntegerField(read_only=True)
-    limit_status = serializers.SerialzerMethodField()
+    limit_status = serializers.SerializerMethodField()
     
     def get_limit_status(self, obj):
         if obj.target_amount is None:
@@ -33,6 +33,7 @@ class CollectSerializer(serializers.ModelSerializer):
         return f'Target: {obj.target_amount}'
 
     class Meta:
+        model = Collect
         fields = [
             'id', 'author', 'title', 'purpose',
             'description', 'target_amount', 'current_amount',
