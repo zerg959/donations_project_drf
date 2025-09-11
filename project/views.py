@@ -1,14 +1,47 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework import permissions
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly, AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from django.contrib.auth.models import User
 from project.models import Collect, Payment
-from project.serializers import CollectSerializer, PaymentSerializer, UserSerializer
+from project.serializers import (
+    CollectSerializer, 
+    PaymentSerializer,
+    UserSerializer,
+    UserRegistrationSerializer
+    )
+
+class AuthViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]
+    @action(detail=True, method=['post'], url_path='register')
+    def register(self, request):
+        serializer=UserRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                "message": "Registration successful.",
+                "user": UserSerializer(user).data,
+                "tokens": {
+                    "refresh token": str(refresh),
+                    "access token": str(refresh.access_token),
+                }
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class IsAuthorOrReadOnly(permissions.BasePermissions):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return obj.author == request.user
 
 class CollectViewSet(viewsets.ModelViewSet):
     queryset = Collect.objects.all()
     serializer_class = CollectSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -40,6 +73,6 @@ class CollectViewSet(viewsets.ModelViewSet):
 
 
 class PaymentViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Payment.objects.all()
+    queryset = Payment.objects.select_related('user').all()
     serializer_class = PaymentSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
