@@ -19,7 +19,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Create extra floders
-RUN mkdir db
+RUN mkdir -p db media
 
 # App port
 EXPOSE 8000

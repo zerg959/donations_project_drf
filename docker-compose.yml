@@ -1,0 +1,20 @@
+# docker-compose
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - ./db/db.sqlite3:/app/db/db.sqlite3
+      - ./media:/app/media
+    env_file:
+      - .env
+    command: >
+      sh -c "
+        mkdir -p /app/db &&
+        python manage.py migrate --noinput &&
+        python manage.py runserver 0.0.0.0:8000
+      "
