@@ -5,3 +5,5 @@ drf-yasg
 python-dotenv
 djangorestframework-simplejwt
 Faker
+redis
+django-redis
