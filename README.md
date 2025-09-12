@@ -11,7 +11,6 @@ Built with:
 -  **Auto-generated API documentation** via Swagger UI and ReDoc
 
 ---
-
 ## Features
 
 ### Core Functionality
@@ -51,7 +50,6 @@ You can run it using **Docker** and **Docker Compose plugin** (`docker compose`,
 1) Make sure you have installed:
 - [Docker Engine](https://docs.docker.com/engine/install/)
 - [Docker Compose Plugin](https://docs.docker.com/compose/install/) (comes with Docker Desktop or install separately)
-
 2) Check installation:
 ```bash
 docker --version
@@ -79,7 +77,6 @@ touch .env
 ```bash
 mkdir -p db media
 ```
-
 8) Create empty db file.
 ```bash
 touch db/db.sqlite3
@@ -121,7 +118,6 @@ Once the server is running, open the following in your browser:
 - **Admin Panel**: [http://localhost:8000/admin/](http://localhost:8000/admin/)
 
 #### Example API Flow
-
 **Register a user**  
    `POST /api/auth/register/`  
    ```json
@@ -132,7 +128,6 @@ Once the server is running, open the following in your browser:
      "password_confirm": "your_password"
    }
    ```
-
 **Get JWT tokens**  
    `POST /api/token/`  
    ```json
@@ -143,8 +138,15 @@ Once the server is running, open the following in your browser:
 ```
 **Set Authorization in Swagger**
 In Swagger UI, click "Authorize" and enter:
-   `Bearer <your_access_token>`  
+   `Bearer <your_access_token>`
 
+**Make a payment**
+`POST /api/collections/{id}/pay/`
+ ```json
+    {
+    "amount": 1000,
+    }
+  ```
 **Create a collection**  
 `POST /api/collections/`  
    ```json
@@ -155,14 +157,4 @@ In Swagger UI, click "Authorize" and enter:
         "target_amount": 50000,
         "image": "file"
         }
-    ```
-
-
-**Make a payment**
-Replace {id} with the actual collection ID.
-`POST /api/collections/{id}/pay/`
-   ```json
-    {
-    "amount": 1000
-    }
-  ```
+   ```
