@@ -158,11 +158,11 @@ In Swagger UI, click "Authorize" and enter:
     ```
 
 
-**Make a payment**<br>
-`POST /api/collections/{id}/pay/`
+**Make a payment**
 Replace {id} with the actual collection ID.
+`POST /api/collections/{id}/pay/`
    ```json
     {
     "amount": 1000
     }
-    ```
+  ```
