@@ -87,6 +87,7 @@ On first run, this will:<br>
 - Install Python dependencies<br>
 - Apply database migrations<br>
 - Start the Django development server on port 8000<br>
+- Start the Redis on port 6379
 
 10)  Run migrations (if not done automatically)
 ```bash
@@ -102,7 +103,7 @@ For custom numbers use:
 ```bash
 docker compose run --rm api python manage.py generate_fake_data --users 200 --collections 100 --payments 2000
 ```
-12) Create a superuser (optional) to access Django admin (localhost\admin).
+12) Create a superuser (optional) to access Django admin (localhost/admin).
 ```bash
 docker compose run --rm api python manage.py createsuperuser
 ```
@@ -111,7 +112,6 @@ docker compose run --rm api python manage.py createsuperuser
 Once the server is running, open the following in your browser:
 
 - **Swagger UI**: [http://localhost:8000/swagger/](http://localhost:8000/swagger/)
-- **ReDoc**: [http://localhost:8000/redoc/](http://localhost:8000/redoc/)
 - **Admin Panel**: [http://localhost:8000/admin/](http://localhost:8000/admin/)
 
 #### Example API Flow
