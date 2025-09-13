@@ -12,7 +12,6 @@ Built with:
 -  **Custom business logic** (auto-increment collected amount, participants count, goal completion)
 -  **Auto-generated API documentation** via Swagger UI and ReDoc
 
-
 ---
 ## Features
 
