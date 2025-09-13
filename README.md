@@ -4,12 +4,14 @@
 
 Built with:
 -  **Django & Django REST Framework**
--  **JWT Authentication** (registration, login, profile)
+-  **Database** SQLite
+-  **Caching** Redis
+-  **JWT Authentication** SimpleJWT (registration, login, profile)
 -  **Image uploads** for collections
 -  **Payment tracking**
 -  **Custom business logic** (auto-increment collected amount, participants count, goal completion)
 -  **Auto-generated API documentation** via Swagger UI and ReDoc
--  **Database** SQLite
+
 
 ---
 ## Features
