@@ -70,10 +70,6 @@ DEBUG=True
 SECRET_KEY=change-this-to-a-secure-secret-key
 REDIS_URL=redis://redis:6379/1
 ```
-6) Create .env file with secret keys:
-```bash
-touch .env
-```
 7) Create directories for database and media
 ```bash
 mkdir -p db media
