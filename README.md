@@ -1,6 +1,6 @@
 # GroupCollectAPI
 [![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
 
 **GroupCollectAPI** is a Django REST Framework backend for managing collective fundraising campaigns (donation collections). It allows users to create donation goals, contribute to them, and track payments in real time.
 
@@ -160,5 +160,6 @@ In Swagger UI, click "Authorize" and enter:
         }
 
    ```
+
 
 
