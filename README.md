@@ -36,7 +36,7 @@ Built with:
 - Anyone can view collections and make payments
 - Full protection against unauthorized modifications
 
-### 📬 Notifications
+### Notifications
 *Ssent to console in dev mode*
 - Email sent to the author upon successful creation of a new collection.
 - Email sent to the donor upon successful creation of a new paymnet.
@@ -163,6 +163,7 @@ In Swagger UI, click "Authorize" and enter:
         }
 
    ```
+
 
 
 
